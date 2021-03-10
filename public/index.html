@@ -5,11 +5,62 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Short URL Project</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>Short Url Project</h1>
     </header>
+    <main id"app">
+        <div class="container align-middle">
+            <form @submit.prevent="createUrl()">
+                <div class="mb-3">
+                  <label for="url" class="form-labell mb-2">URL</label>
+                  <input v-model="url" type="text" class="form-control" id="url" name="url" required> 
+                </div>
+                <div class="mb-3">
+                  <label for=slug"" class="form-label mb-2">Alias/Slug</label>
+                  <input v-model="slug" type="text" class="form-control" id="slug" name="slug">
+                </div>
+                <div class="align-middle">
+                    <button type="submit" class="btn btn-outline-primary btn-lg ">Submit</button>
+                </div>
+            </form> 
+            <pre v-if="created">{{JSON.stringify(created, null, 2)}}</pre>
+        </div>
+    </main>
+    <script type="text/javascript" src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.7/vue.cjs.js" integrity="sha512-rEUmaOwq8RTKLJ+i+F05YDchx4/UJ+yuM83C2RHPV8LqU6xhc03MYUE+6QQM3GGtKNCZCgHmoYKCSSgGSg92ew==" crossorigin="anonymous"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script> -->
+    <!-- <script src="app.js"></script> -->
+    <script>
+const app = new Vue({
+    el: '#app',
+    data: {
+        url: '',
+        slug: '',
+        created: null,
+    },
+    methods: {
+        async createUrl() {
+         console.log(this.url, this.slug);   
+       const responce =  await fetch('/url', {
+             method: 'POST',
+             headers: {
+                'content-type': 'application/json',
+             },
+             body: JSON.stringify({
+                 url: this.url,
+                 slug: this.slug
+             }) 
+         })
+
+         this.created = await responce.json();
+
+        }
+    }
+});
+    </script>
 </body>
 </html>

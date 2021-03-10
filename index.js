@@ -10,7 +10,7 @@ require(`dotenv`).config();
 
 const db = monk(process.env.MONGO_URI);
 const urls = db.get('urls');
-urls.createIndex({ name: 1 }, { unique: true })
+urls.createIndex({ slug: 1 }, { unique: true });
 
 const app = express();
 
@@ -24,9 +24,18 @@ app.use(express.static('./public'));
 //     // TODO: get a short url by ID
 // });
 
-// app.get('/:id', (req, res) => {
-//     // TODO: redirect to url
-// });
+app.get('/:id', async (req, res, next) => {
+    const { id: slug } = req.params;
+    try {
+        const url = await urls.findOne({ slug });
+        if (url) {
+            res.redirect(url.url);
+        } 
+        res,redirect('/?error=${slug} not found.');
+    } catch (error) {
+        res,redirect('/?error=Link not found');
+    }
+});
 
 const  schema = yup.object().shape({
     slug: yup.string().trim().matches(/[\w\-]/i),
@@ -44,20 +53,23 @@ app.post('/url',async (req, res, next) => {
 
         if (!slug) {
             slug = nanoid(5);
-        } else {
+        } 
+        else {
             const existing = await urls.findOne({ slug });
             if (existing) {
-                throw new Error('Opps!, Slug in Use.');
+                throw new Error('Opps!, Slug in Use. 😞 ');
             }
         }
         slug = slug.toLowerCase();
+        console.log(slug);
         const newUrl = {
             url,
             slug,
         };
         const created = await urls.insert(newUrl);
         res.json(created);
-    } catch (error) {
+    } 
+    catch(error) {
         next(error);
     }
 });
